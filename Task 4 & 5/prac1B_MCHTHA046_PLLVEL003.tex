@@ -1,0 +1,549 @@
+\documentclass[11pt,a4paper]{article}
+
+% ------------------------------------------------------------
+% Packages
+% ------------------------------------------------------------
+\usepackage[a4paper,margin=22mm]{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{siunitx}
+\usepackage{amsmath,amssymb}
+\usepackage{float}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{caption}
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
+\usepackage{fancyhdr}
+\usepackage{microtype}
+
+\sisetup{detect-all,per-mode=symbol}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.55em}
+\setlength{\headheight}{14pt}
+\setlist[itemize]{noitemsep,topsep=0.3em}
+
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{EEE3096S Practical 1B}
+\rhead{MCHTHA046 \& PLLVEL003}
+\cfoot{\thepage}
+
+% ------------------------------------------------------------
+% Listings setup
+% ------------------------------------------------------------
+\lstdefinelanguage{ARMAsm}{
+  morekeywords={LDR,STR,MOVS,MOV,LSRS,ANDS,TST,BEQ,BNE,B,BL,BX,PUSH,POP,SUBS,NOP,.syntax,.thumb,.cpu,.fpu,.global,.type,.equ,.section,.size},
+  sensitive=true,
+  morecomment=[l]{@}
+}
+
+\lstset{
+  language=ARMAsm,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\bfseries,
+  commentstyle=\itshape,
+  numbers=left,
+  numberstyle=\tiny,
+  stepnumber=1,
+  numbersep=8pt,
+  frame=single,
+  breaklines=true,
+  columns=fullflexible,
+  showstringspaces=false
+}
+
+% ------------------------------------------------------------
+% Helper commands
+% ------------------------------------------------------------
+\newcommand{\todoanswer}[1]{%
+  \par\noindent\fcolorbox{black}{gray!5}{%
+    \parbox{0.95\linewidth}{\textbf{TO FILL:} #1\vspace{1.5em}}%
+  }\par
+}
+
+\newcommand{\figureplaceholder}[3]{%
+\begin{figure}[H]
+  \centering
+  \IfFileExists{#1}{%
+    \includegraphics[width=0.92\linewidth]{#1}%
+  }{%
+    \fbox{\parbox[c][55mm][c]{0.88\linewidth}{\centering
+      \textbf{Insert figure here}\\[0.6em]
+      Expected file: \texttt{\detokenize{#1}}\\[0.6em]
+      #2
+    }}%
+  }
+  \caption{#3}
+\end{figure}
+}
+
+\newcommand{\codefile}[2]{%
+  \IfFileExists{#1}{\lstinputlisting[caption={#2}]{#1}}{%
+    \fbox{\parbox[c][35mm][c]{0.94\linewidth}{\centering
+      Copy the final source file to \texttt{\detokenize{#1}} before compiling the submission.\\
+      #2
+    }}%
+  }%
+}
+
+% ------------------------------------------------------------
+% Document
+% ------------------------------------------------------------
+\begin{document}
+
+\begin{titlepage}
+\centering
+\vspace*{20mm}
+{\Large University of Cape Town\\Department of Electrical Engineering\par}
+\vspace{18mm}
+{\huge\bfseries EEE3096S Practical 1B\par}
+\vspace{3mm}
+{\Large Execution Timing and Cycle-Accurate Assembly on the UCT Dev Board\par}
+\vspace{20mm}
+\begin{tabular}{ll}
+\textbf{Student 1:} & Thapelo Mocheko (MCHTHA046)\\
+\textbf{Student 2:} & Velan Pillay (PLLVEL003)\\
+\textbf{Year:} & 2026\\
+\end{tabular}
+\vfill
+\textit{Report filename required by the practical:}\\
+\texttt{prac1B\_MCHTHA046\_PLLVEL003.pdf}
+\vspace{15mm}
+\end{titlepage}
+
+\tableofcontents
+\clearpage
+
+% ============================================================
+\section{Golden Measure and PC Timing -- Task 1}
+% Target length from practical: approximately 2 pages.
+
+\subsection{Method and predicted execution time}
+Describe the PC implementation of the golden integer square-root function using double-precision arithmetic and the standard-library square-root function. State the instruction-count estimate and the PC CPU clock used before running the timing experiment.
+
+\todoanswer{CPU model and clock frequency; estimated instruction count; predicted time per call in ns; brief reasoning.}
+
+\subsection{Timing runs}
+The practical requires two timing runs with different repetition counts and a comparison of the resulting time per call.
+
+\begin{table}[H]
+\centering
+\caption{Task 1 timing runs.}
+\begin{tabular}{lrrrr}
+\toprule
+Run & Repetitions & Total measured time & Time/call (ns) & Notes\\
+\midrule
+1 & & & & \\
+2 & & & & \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\todoanswer{Mean time per call and spread across the two runs. Define clearly how ``spread'' was calculated.}
+
+\subsection{Golden outputs}
+Complete the full table for the ten required inputs.
+
+\begin{table}[H]
+\centering
+\caption{Golden integer square-root outputs.}
+\begin{tabular}{r r l}
+\toprule
+Input $x$ & Golden output $\lfloor\sqrt{x}\rfloor$ & Verification/status\\
+\midrule
+0 & & \\
+1 & & \\
+15 & & \\
+16 & & \\
+4095 & & \\
+65535 & & \\
+123456789 & & \\
+987654321 & & \\
+4294836225 & & \\
+4294967295 & & \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Hand check}
+Write one check in full by proving both inequalities
+\[
+ y^2 \le x
+ \qquad\text{and}\qquad
+ (y+1)^2 > x.
+\]
+
+\todoanswer{Choose one required input and show the complete arithmetic.}
+
+\subsection{Task 1 question}
+\todoanswer{State the golden output for 987654321, the measured time per call in ns, the repetition count used, and explain why timing one isolated call is unreliable.}
+
+% ============================================================
+\section{Board Implementation and Timer Measurement -- Task 2}
+% Target length from practical: approximately 3 pages plus figures.
+
+\subsection{Clock path and timer configuration}
+Name every clock-tree stage from HSI to the selected 16-bit timer, including divider values and the timer prescaler.
+
+\todoanswer{Timer used; HSI frequency; SYSCLK/AHB/APB path; APB timer-clock rule if applicable; prescaler value; resulting counter frequency and counter tick period. Cite the exact RM0091 sections used.}
+
+\subsection{Predicted timing}
+\todoanswer{Predicted instruction count, predicted counter span, and predicted execution time for one integer square-root call. Show reasoning.}
+
+\subsection{Measured single-call timing}
+\begin{align}
+\Delta N &= \text{counter span} = \boxed{\phantom{00000}},\\
+f_{\mathrm{counter}} &= \boxed{\phantom{00000000}\ \mathrm{Hz}},\\
+\Delta t &= \frac{\Delta N}{f_{\mathrm{counter}}}
+          = \boxed{\phantom{000.000}\ \mu\mathrm{s}}.
+\end{align}
+
+\todoanswer{Insert the actual counter values before/after the call and show the complete divider-to-microseconds calculation.}
+
+\figureplaceholder{figures/task2_single_call.png}
+{Full uncropped scope capture. PC13 pulse, channel information, V/div, time/div, both cursors and delta readout visible.}
+{Task 2 single-call execution pulse on PC13. The body text must state the same measured pulse width as the cursor readout.}
+
+\subsection{Counter wrap-around}
+For a 16-bit free-running counter, one wrap occurs after $2^{16}=65536$ counts. Show the long-run arithmetic explicitly rather than assuming unsigned subtraction without explanation.
+
+\todoanswer{Long-run repetition count; start and end counter values; number of wraps; total count span; total time; mean time per call.}
+
+\subsection{Golden-value verification}
+\todoanswer{State pass/fail against all ten Task 1 golden values and include the evidence produced by the firmware.}
+
+\subsection{Task 2 question}
+\todoanswer{State the scope pulse width in us and the recorded counter span. Show the full calculation from divider values to pulse width. State whether the system clock matches the 8 MHz HSI and explain how this was confirmed.}
+
+% ============================================================
+\section{Optimisation Flags -- Task 3}
+% Target length from practical: approximately 2 pages plus figures.
+
+\subsection{Prediction}
+\todoanswer{Predicted ratio between the -O0 and -O2 execution times, written down before building -O2, with brief reasoning.}
+
+\subsection{Optimisation results}
+\begin{table}[H]
+\centering
+\caption{Effect of compiler optimisation on execution time and text size.}
+\begin{tabular}{lrrrr}
+\toprule
+Flag & Text size (bytes) & Counter time/call ($\mu$s) & Scope width ($\mu$s) & Ratio to -O0\\
+\midrule
+-O0 & & & & 1.000\\
+-O1 & & & & \\
+-O2 & & & & \\
+-Os & & & & \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Predicted and measured optimisation ratios.}
+\begin{tabular}{lll}
+\toprule
+Comparison & Predicted ratio & Measured ratio\\
+\midrule
+-O0 / -O2 & & \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\figureplaceholder{figures/task3_O0.png}{Full uncropped -O0 scope capture with cursors.}{Task 3 execution pulse at \texttt{-O0}.}
+\figureplaceholder{figures/task3_O1.png}{Full uncropped -O1 scope capture with cursors.}{Task 3 execution pulse at \texttt{-O1}.}
+\figureplaceholder{figures/task3_O2.png}{Full uncropped -O2 scope capture with cursors.}{Task 3 execution pulse at \texttt{-O2}.}
+\figureplaceholder{figures/task3_Os.png}{Full uncropped -Os scope capture with cursors.}{Task 3 execution pulse at \texttt{-Os}.}
+
+\subsection{Disassembly evidence}
+Name one optimisation transformation visible in the \texttt{-O2} disassembly and identify the source lines on which it acts.
+
+\todoanswer{Name of transformation, source-line numbers, and a short explanation of what changed. Paste a concise disassembly excerpt below.}
+
+\begin{lstlisting}[language={},caption={Task 3 disassembly excerpt at -O2.}]
+% Paste only the relevant disassembly excerpt here.
+\end{lstlisting}
+
+\subsection{Execution-time/code-size trade-off}
+\todoanswer{Explain the measured trade-off between execution time and text size across -O0, -O1, -O2 and -Os.}
+
+\subsection{Task 3 question}
+\todoanswer{State measured -O0 and -O2 times in us; measured ratio; predicted ratio; optimisation transformation; and the source lines affected.}
+
+% ============================================================
+\section{Cycle-Counted Phase Delay -- Task 4}
+% Target length from practical: approximately 2 pages plus figures.
+
+\subsection{Required phase delay}
+The input frequency is \SI{1}{\kilo\hertz}, so the period is
+\begin{equation}
+T=\frac{1}{f}=\frac{1}{1000}=\SI{1}{\milli\second}.
+\end{equation}
+A \ang{45} phase shift is one eighth of a cycle, therefore
+\begin{equation}
+\Delta t=\frac{45^\circ}{360^\circ}T
+       =\frac{1}{8}(\SI{1}{\milli\second})
+       =\boxed{\SI{125}{\micro\second}}.
+\end{equation}
+
+With the system clock at \SI{8}{\mega\hertz},
+\begin{equation}
+T_{\mathrm{cycle}}=\frac{1}{\SI{8}{\mega\hertz}}
+=\boxed{\SI{125}{\nano\second}}.
+\end{equation}
+Hence the target loop period is
+\begin{equation}
+N_{\mathrm{cycles}}=\frac{\SI{125}{\micro\second}}{\SI{125}{\nano\second}}
+=\boxed{1000\ \text{cycles}}.
+\end{equation}
+
+\subsection{Assembly implementation}
+The core polling loop used for the cycle-counted design is shown below. The ADC sample is read from the ADC data register and written directly to DAC1 before the software delay.
+
+\begin{lstlisting}[caption={Core Task 4 ADC-to-DAC loop.}]
+DSP_Loop:
+    LDR  R0, =ADC_DR
+    LDR  R1, =DAC_DHR12R1
+
+loop:
+    LDR  R2, [R0]          @ predicted 2 cycles
+    STR  R2, [R1]          @ predicted 2 cycles
+
+    MOVS R3, #248          @ 1 cycle
+    NOP                    @ 1 cycle
+    NOP                    @ 1 cycle
+
+delay_loop:
+    SUBS R3, R3, #1        @ 1 cycle x 248
+    BNE  delay_loop        @ 247 taken + 1 not taken
+
+    B    loop              @ predicted 3 cycles
+\end{lstlisting}
+
+\subsection{Cycle budget}
+\begin{table}[H]
+\centering
+\caption{Task 4 cycle budget for one ADC-to-DAC update.}
+\begin{tabular}{lrrrr}
+\toprule
+Instruction/event & Cycles/instruction & Iterations & Subtotal & Running total\\
+\midrule
+\texttt{LDR R2,[R0]} & 2 & 1 & 2 & 2\\
+\texttt{STR R2,[R1]} & 2 & 1 & 2 & 4\\
+\texttt{MOVS R3,\#248} & 1 & 1 & 1 & 5\\
+\texttt{NOP} & 1 & 2 & 2 & 7\\
+\texttt{SUBS} & 1 & 248 & 248 & 255\\
+\texttt{BNE} taken & 3 & 247 & 741 & 996\\
+\texttt{BNE} not taken & 1 & 1 & 1 & 997\\
+\texttt{B loop} & 3 & 1 & 3 & \textbf{1000}\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Thus the predicted update period is
+\begin{equation}
+1000(\SI{125}{\nano\second})=\boxed{\SI{125}{\micro\second}},
+\end{equation}
+which corresponds to the required \ang{45} phase displacement at \SI{1}{\kilo\hertz}.
+
+\figureplaceholder{figures/task4_phase_delay.png}
+{CH1 on PB0 and CH2 on PA4. Show the full scope screen with cursors placed on corresponding points of the two waveforms.}
+{Task 4 input on PB0 and DAC output on PA4. Cursor separation $\Delta t=\underline{\hspace{16mm}}\,\mu$s, corresponding to the measured phase delay.}
+
+\subsection{Measured error and discussion}
+Use the actual oscilloscope reading in the following calculation:
+\begin{align}
+\Delta t_{\mathrm{meas}} &= \boxed{\phantom{000.0}\ \mu\mathrm{s}},\\
+\varepsilon_t &= \Delta t_{\mathrm{meas}}-\SI{125}{\micro\second},\\
+\%\text{ error} &= \frac{|\varepsilon_t|}{\SI{125}{\micro\second}}\times100
+                 = \boxed{\phantom{00.00}\%}.
+\end{align}
+
+Any non-zero error should be discussed using the measured result. Plausible contributors include HSI oscillator tolerance, scope cursor placement, ADC/DAC peripheral timing and the discrete sample-and-hold nature of the DAC waveform. Do not claim a contributor that is inconsistent with the observed data.
+
+% ============================================================
+\section{Analog Debugging of the LCD Enable Line -- Task 5}
+% Target length from practical: approximately 3 pages plus figures.
+
+\subsection{4-bit LCD interface}
+The LCD was driven in 4-bit mode using PC15 as Enable, PC14 as RS, and PA15/PA12/PB9/PB8 as D7/D6/D5/D4. The program waits for the LCD power rail, executes the 4-bit initialisation sequence, and writes ASCII \texttt{0x41} (``A'').
+
+\begin{lstlisting}[caption={Task 5 entry point and character write.}]
+LCD_Run:
+    PUSH {LR}
+
+    BL   LCD_DelayLong
+    BL   LCD_DelayLong
+    BL   LCD_DelayLong
+    BL   LCD_DelayLong
+
+    BL   LCD_Init
+
+    MOVS R0, #0x41
+    BL   LCD_WriteData
+
+hang:
+    B    hang
+\end{lstlisting}
+
+The 4-bit power-up sequence used the standard pattern of three \texttt{0x3} nibbles followed by \texttt{0x2}, after which full commands such as \texttt{0x28}, \texttt{0x08}, \texttt{0x01}, \texttt{0x06}, \texttt{0x0C} and \texttt{0x80} were sent through the 4-bit write routine.
+
+\subsection{Uncorrected Enable timing}
+Before adding NOP padding, the PC15 HIGH and LOW masks were preloaded so that no unintended literal-load instruction lengthened the HIGH pulse:
+
+\begin{lstlisting}[caption={Uncorrected Enable pulse used for the failing-case measurement.}]
+LCD_Pulse:
+    PUSH {R0, R1, R2, LR}
+    LDR  R0, =GPIOC_BSRR
+    LDR  R1, =0x00008000      @ PC15 HIGH mask
+    LDR  R2, =0x80000000      @ PC15 LOW mask
+
+    STR  R1, [R0]             @ PC15 HIGH
+    @ no NOP padding here
+    STR  R2, [R0]             @ PC15 LOW
+
+    BL   LCD_DelayShort
+    POP  {R0, R1, R2, PC}
+\end{lstlisting}
+
+\figureplaceholder{figures/task5_before_fix.png}
+{CH1 on PC15 and CH2 on PC15\_S using the real short Enable pulse. Show that the 5 V-side signal does not provide the required valid HIGH interval.}
+{Task 5 before-fix Enable waveform: PC15 (CH1) and PC15\_S (CH2).}
+
+\subsection{Measured rise time and parasitic capacitance}
+A long diagnostic square wave was used only to make the RC rising edge easy to capture. The measured time from approximately \SI{0}{\volt} to the \SI{3.5}{\volt} threshold on PC15\_S was approximately
+\begin{equation}
+\boxed{t_r \approx \SI{27}{\nano\second}}.
+\end{equation}
+\textbf{Important:} replace \SI{27}{\nano\second} everywhere in this report if the final cursor placement at exactly \SI{3.5}{\volt} gives a different value.
+
+\figureplaceholder{figures/task5_rise_time.png}
+{CH2 source selected. Place one time cursor at the beginning of the PC15\_S rise and the second at the point where PC15\_S reaches 3.5 V.}
+{Measured PC15\_S rise time from 0 V to 3.5 V: $t_r=\underline{\hspace{14mm}}$ ns.}
+
+The practical gives the capacitor-charging relation
+\begin{equation}
+V_C(t)=V_{CC}\left(1-e^{-t/(RC)}\right),
+\end{equation}
+which gives
+\begin{equation}
+\boxed{
+C=\frac{-t_r}{R\ln\!\left(1-\dfrac{V_C(t)}{V_{CC}}\right)}
+}.
+\end{equation}
+For this board, substitute
+\[
+t_r=\SI{27}{\nano\second},\qquad
+V_C(t)=\SI{3.5}{\volt},\qquad
+R=\boxed{\phantom{0000}\ \Omega},\qquad
+V_{CC}=\boxed{\phantom{0.00}\ \mathrm{V}}.
+\]
+Therefore,
+\begin{equation}
+C=\boxed{\phantom{000.00}\ \mathrm{pF}}.
+\end{equation}
+The resistor value and supply voltage must be taken from the actual board/schematic and bench measurement; they are intentionally not invented here.
+
+\subsection{NOP padding calculation}
+At \SI{8}{\mega\hertz}, each CPU cycle is \SI{125}{\nano\second}. Using the measured rise time of approximately \SI{27}{\nano\second} and the practical requirement that PC15\_S remain above \SI{3.5}{\volt} for at least \SI{450}{\nano\second}, a conservative required MCU-side HIGH time is
+\begin{equation}
+t_{\mathrm{required}}=t_r+\SI{450}{\nano\second}
+\approx \SI{27}{\nano\second}+\SI{450}{\nano\second}
+=\SI{477}{\nano\second}.
+\end{equation}
+Hence
+\begin{equation}
+N_{\mathrm{NOP}}
+=\left\lceil\frac{\SI{477}{\nano\second}}{\SI{125}{\nano\second}}\right\rceil
+=\left\lceil3.816\right\rceil
+=\boxed{4\ \mathrm{NOPs}}.
+\end{equation}
+The four NOPs provide a nominal padding of
+\begin{equation}
+4(\SI{125}{\nano\second})=\boxed{\SI{500}{\nano\second}}.
+\end{equation}
+
+\begin{lstlisting}[caption={Corrected Enable pulse with four NOPs.}]
+    LDR  R1, =0x00008000
+    LDR  R2, =0x80000000
+    STR  R1, [R0]             @ PC15 HIGH
+
+    NOP
+    NOP
+    NOP
+    NOP
+
+    STR  R2, [R0]             @ PC15 LOW
+\end{lstlisting}
+
+\subsection{Fixed timing evidence}
+The final oscilloscope measurement must be made using the corrected \emph{real} LCD Enable pulse, not the long diagnostic square wave. Place the cursors on the rising and falling \SI{3.5}{\volt} crossings of PC15\_S.
+
+\figureplaceholder{figures/task5_after_fix.png}
+{CH1 on PC15 and CH2 on PC15\_S. Place the cursors at the two 3.5 V crossings of CH2. The delta must be at least 450 ns.}
+{Task 5 fixed Enable waveform. PC15\_S remains above 3.5 V for $\Delta t=\underline{\hspace{14mm}}$ ns, satisfying the 450 ns requirement.}
+
+Record the final result explicitly:
+\begin{equation}
+\boxed{t_{\mathrm{PC15\_S}>3.5V}=\phantom{000.0}\ \mathrm{ns}\ \ge\ \SI{450}{\nano\second}}.
+\end{equation}
+
+\subsection{LCD result}
+The final code writes ASCII \texttt{0x41}; using the working LCD module, the character ``A'' was displayed clearly.
+
+\figureplaceholder{figures/task5_LCD_A.jpg}
+{Photograph the working LCD module clearly displaying the letter A.}
+{Final LCD output displaying the character ``A''.}
+
+% ============================================================
+\clearpage
+\section*{References}
+\addcontentsline{toc}{section}{References}
+
+\begin{enumerate}
+  \item EEE3096S Practical 1B, \emph{Execution Timing and Cycle-Accurate Assembly on the UCT Dev Board}, UCT, 2026.
+  \item STMicroelectronics, \emph{RM0091 STM32F0x1/STM32F0x2/STM32F0x8 Reference Manual}. \textbf{TO FILL:} exact clock-tree and timer sections used in Tasks 2--3.
+  \item STMicroelectronics, \emph{STM32F051x4/x6/x8 Datasheet}. \textbf{TO FILL:} exact tables/sections used.
+  \item Hitachi, \emph{HD44780U LCD Controller/Driver Datasheet}. Relevant items include the 4-bit initialisation flow and bus timing characteristics. \textbf{TO FILL:} exact figure/table/page references used in the final report.
+  \item UCT Dev Board schematic and pinout reference. \textbf{TO FILL:} schematic sheet/reference used for the level-shifter resistor value and signal names.
+  \item \textbf{TO FILL:} PC CPU documentation/source used for the Task 1 CPU clock, if cited.
+\end{enumerate}
+
+% ============================================================
+\clearpage
+\appendix
+\section{Code Appendix}
+
+The practical requires the report to be followed by a code appendix. Put the final source files in a local \texttt{code/} directory beside this \LaTeX{} file before compiling.
+
+\subsection{Task 1 PC golden implementation}
+\codefile{code/task1_golden.c}{Complete Task 1 golden-measure source.}
+
+\subsection{Tasks 2--3 board C implementation}
+\codefile{code/task2_3_main.c}{Complete board implementation and timing code used for Tasks 2 and 3.}
+
+\subsection{Task 4 assembly}
+\codefile{code/dsp.s}{Final Task 4 \texttt{dsp.s}.}
+
+\subsection{Task 5 assembly}
+\codefile{code/lcd.s}{Final Task 5 \texttt{lcd.s}.}
+
+\section{Submission Evidence Checklist}
+Before generating the final PDF, confirm all of the following:
+\begin{itemize}
+  \item The report has five numbered sections in the required order, followed by references and the code appendix.
+  \item Task 2 has one full-screen scope capture of the PC13 single-call pulse.
+  \item Task 3 has four full-screen captures: -O0, -O1, -O2 and -Os.
+  \item Task 4 has one full-screen capture with CH1=PB0, CH2=PA4 and cursors on the measured phase delay.
+  \item Task 5 includes before-fix and after-fix Enable captures; keep a separate rise-time capture as well if it is used for a separate numerical claim.
+  \item Every scope image is uncropped and shows channel numbers, V/div, time/div, both cursors and the delta readout.
+  \item Every timing value in the body text matches the corresponding oscilloscope readout.
+  \item Every figure has a number, a caption naming the probed pins, the measured quantity and the measured value, and is referenced from the body text.
+  \item The final LCD photograph clearly shows ``A'' on the working module.
+  \item All exact manual sections, datasheet tables and external sources are included in the References section.
+\end{itemize}
+
+\end{document}

@@ -1,0 +1,16 @@
+{
+    "files.readonlyInclude": {
+        "{**/.c4z/.extsrcs/*.PROTSYM.cbl,**/.c4z/.extsrcs/*.PROTSYM.listing}": true
+    },
+    "files.exclude": {
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/.DS_Store": true,
+        "**/Thumbs.db": true,
+        "**/c:\\Users\\Thapelo\\OneDrive\\Desktop\\EEE3096\\EEE3096S-2026-main\\EEE3096S-2026-main\\Task 4 & 5\\prac1B_MCHTHA046_PLLVEL003.aux": true,
+        "**/c:\\Users\\Thapelo\\OneDrive\\Desktop\\EEE3096\\EEE3096S-2026-main\\EEE3096S-2026-main\\Task 4 & 5\\prac1B_MCHTHA046_PLLVEL003.log": true,
+        "**/c:\\Users\\Thapelo\\OneDrive\\Desktop\\EEE3096\\EEE3096S-2026-main\\EEE3096S-2026-main\\Task 4 & 5\\prac1B_MCHTHA046_PLLVEL003.gz": true,
+        "**/c:\\Users\\Thapelo\\OneDrive\\Desktop\\EEE3096\\EEE3096S-2026-main\\EEE3096S-2026-main\\Task 4 & 5\\prac1B_MCHTHA046_PLLVEL003.out": true
+    }
+}
